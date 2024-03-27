@@ -1,18 +1,25 @@
-{
-  enabled = attributes: attributes // {
+lib: {
+  mkValue = value: lib.mkOption {
+    default  = value;
+    readOnly = true;
+  };
+
+  mkValueDefault = default: lib.mkOption { inherit default; };
+
+  enabled = x: x // {
     enable = true;
   };
 
-  normalUser = attributes: attributes // {
+  normalUser = x: x // {
     isNormalUser = true;
   };
 
-  systemUser = attributes: attributes // {
+  systemUser = x: x // {
     isSystemUser = true;
   };
 
-  graphicalUser = attributes: attributes // {
+  graphicalUser = x: x // {
     isNormalUser = true;
-    extraGroups  = [ "graphical" ] ++ attributes.extraGroups or []; 
+    extraGroups  = [ "graphical" ] ++ x.extraGroups or []; 
   };
 }

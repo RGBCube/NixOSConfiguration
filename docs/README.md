@@ -1,39 +1,9 @@
-# My NixOS Configurations
+# NCC
 
-This repository contains my NixOS configurations for all my machines.
+RGBCube's NixOS Configuration Collection.
 
-## Bootstrapping
-
-Here is the script you need to run to get this working:
-
-> [!IMPORTANT]
-> You will need to have an SSH key to authorize GitHub with,
-> and have access to the Ghostty GitHub repository as I
-> use Ghostty and Ghostty is in private beta at the moment.
-
-```sh
-sudo nix-shell --packages git nu nix-output-monitor --command "
-  git clone https://github.com/RGBCube/NixOSConfiguration ~/Configuration
-  cd ~/Configuration
-  hostname -v <host>
-  nu rebuild.nu
-"
-```
-
-`host` is a host selected from the hosts in the `hosts` directory.
-
-## Applying Changes
-
-Lets say you have changed the configuration and want to apply the changes
-to your system. You would have to run the rebuild script:
-
-```sh
-./rebuild.nu
-```
-
-This runs the script interactively.
-
-You can also check how the script is used by reading the parameters it takes.
+Nothing much to see here, just a huge refactor in progress...
+Check back soon!
 
 ## License
 

@@ -13,7 +13,7 @@
       url = "github:privatevoid-net/nix-super";
 
       inputs.flake-compat.follows = "flakeCompat";
-      # inputs.nixpkgs.follows      = "nixpkgs";
+      # inputs.nixpkgs.follows      = "nixpkgs"; # Breaks.
     };
 
     homeManager = {
@@ -69,7 +69,7 @@
     fenix = {
       url = "github:nix-community/fenix";
 
-      inputs.nixpkgs.follows      = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     zig = {
@@ -123,47 +123,42 @@
     themes,
     ...
   } @ inputs: let
-    importConfiguration = host: let
-      hostDefault = import ./hosts/${host} {
-        config = {};
-        keys   = {};
-        ulib   = (import ./lib lib null) // {
-          merge = lib.recursiveUpdate;
-        };
-      };
+    collectNixFiles = directory: with nixpkgs.lib; pipe (builtins.readDir directory) [
+      attrNames
+      # If it has a . in its name but doesn't end with .nix, it gets filtered.
+      (filter (s: hasInfix "." s -> hasSuffix ".nix" s))
+      (map (name: /${directory}/${name}))
+    ];
 
-      users = {
-        all = let
-          users = builtins.attrNames hostDefault.users.users;
-        in if builtins.elem "root" users then
-          users
-        else
-          users ++ [ "root" ];
+    lib = nixpkgs.lib.extend (_: _: with nixpkgs.lib; pipe (collectNixFiles ./lib) [
+      (map (file: import file nixpkgs.lib))
+      (foldl' recursiveUpdate {})
+    ]);
 
-        graphical = builtins.attrNames (lib.filterAttrs (_: value: builtins.elem "graphical" (value.extraGroups or [])) hostDefault.users.users);
-      };
+    keys = import ./keys.nix;
 
-      system = hostDefault.nixpkgs.hostPlatform;
+    nixpkgsOverlayModule = {
+      nixpkgs.overlays = [(final: prev: {
+        inherit (inputs) nuScripts;
 
-      lib  = nixpkgs.lib;
-      ulib = import ./lib lib users;
+        ghostty = inputs.ghostty.packages.${prev.system}.default;
+        zls     = inputs.zls.packages.${prev.system}.default;
+      })] ++ lib.pipe inputs [
+        lib.attrValues
+        (lib.filter (value: value ? overlays && value.overlays ? default))
+        (map (value: value.overlays.default))
+      ];
+    };
 
-      pkgs  = import nixpkgs { inherit system; };
-      upkgs = let
-        defaults = lib.genAttrs
-          [ "nixSuper" "ageNix" "hyprland" "hyprpicker" "ghostty" "zls" ]
-          (name: inputs.${name}.packages.${system}.default);
+    homeManagerModule = { config, ... }: {
+      home-manager.users = lib.genAttrs (lib.attrNames config.users.users) (_: {});
 
-        other = {
-          nuScripts = inputs.nuScripts;
-          rat       = pkgs.callPackage ./derivations/rat.nix {};
-          zig       = inputs.zig.packages.${system}.master;
-        };
-      in defaults // other;
+      home-manager.useGlobalPkgs   = true;
+      home-manager.useUserPackages = true;
+    };
 
-      keys = import ./keys.nix;
-
-      theme = themes.custom (themes.raw.gruvbox-dark-hard // {
+    themeModule = { lib, pkgs, ... }: {
+      options.theme = lib.mkValue (themes.custom (themes.raw.gruvbox-dark-hard // {
         cornerRadius = 8;
         borderWidth  = 2;
 
@@ -181,52 +176,44 @@
 
         icons.name    = "Gruvbox-Plus-Dark";
         icons.package = pkgs.gruvbox-plus-icons;
-      });
-
-      defaultConfiguration = {
-        age.identityPaths = map (user: "/home/${user}/.ssh/id") users.all;
-
-        home-manager.users           = lib.genAttrs users.all (_: {});
-        home-manager.useGlobalPkgs   = true;
-        home-manager.useUserPackages = true;
-
-        networking.hostName  = host;
-      };
-
-    in lib.nixosSystem {
-      inherit system;
-
-      specialArgs = { inherit inputs ulib upkgs keys theme; };
-
-      modules = let
-        mapDirectory = function: directory: with builtins;
-          attrValues (mapAttrs function (readDir directory));
-
-        nullIfUnderscoreOrNotNix = name: if (builtins.substring 0 1 name) == "_" then
-          null
-        else if lib.hasSuffix ".age" name then
-          null
-        else
-          name;
-
-        filterNull = builtins.filter (x: x != null);
-
-        importDirectory = directory:
-          filterNull (mapDirectory (name: _: lib.mapNullable (name: /${directory}/${name}) (nullIfUnderscoreOrNotNix name)) directory);
-      in [
-        homeManager.nixosModules.default
-
-        ageNix.nixosModules.default
-
-        simpleMail.nixosModules.default
-
-        defaultConfiguration
-      ] ++ (importDirectory ./hosts/${host})
-        ++ (importDirectory ./modules);
+      }));
     };
 
-    hosts = (builtins.attrNames (builtins.readDir ./hosts));
+    ageNixModule = {
+      age.identityPaths = [ "/root/.ssh/id" ];
+    };
+
+    optionModules        = collectNixFiles ./options;
+    # configurationModules = collectNixFiles ./modules;
+    configurationModules = [];
+
+    globalModules = [
+      nixpkgsOverlayModule
+
+      homeManager.nixosModules.default
+      homeManagerModule
+      themeModule
+
+      ageNix.nixosModules.default
+      ageNixModule
+
+      simpleMail.nixosModules.default
+    ] ++ optionModules ++ configurationModules;
+
+    collectHostModules = name: [{
+      networking.hostName = name;
+    } ./hosts/enka];
+    # }] ++ collectNixFiles ./hosts/${name};
+
+    hosts               = lib.attrNames (builtins.readDir ./hosts);
+    nixosConfigurations = lib.genAttrs hosts (name: lib.nixosSystem {
+      modules = globalModules ++ collectHostModules name;
+
+      specialArgs = { inherit inputs keys; };
+    });
   in {
-    nixosConfigurations = nixpkgs.lib.genAttrs hosts importConfiguration;
-  };
+    inherit nixosConfigurations;
+
+  # This is here so we can do self.enka instead of self.nixosConfigurations.enka.config.
+  } // lib.mapAttrs (_: value: value.config) nixosConfigurations;
 }
