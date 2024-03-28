@@ -3,21 +3,10 @@
 !docs/
 
 !hosts/
-
 !hosts/enka/
+!hosts/cube/
 
-# !hosts/cube/
-# !hosts/cube/acme/
-# !hosts/cube/forgejo/
-# !hosts/cube/grafana/
-# !hosts/cube/mail/
-# !hosts/cube/matrix-synapse/
-# !hosts/cube/nextcloud/
-
-# !modules/
-# !modules/hyprland/
-# !modules/nushell/
-# !modules/openssh/
+!modules/
 
 !lib/
 
