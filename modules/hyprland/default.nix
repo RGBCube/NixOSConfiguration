@@ -211,8 +211,9 @@
         disable_hyprland_logo    = true
         disable_splash_rendering = true
 
-        key_press_enables_dpms  = true
-        mouse_move_enables_dpms = true
+        hide_cursor_on_key_press = true
+        key_press_enables_dpms   = true
+        mouse_move_enables_dpms  = true
       }
     '';
   };
