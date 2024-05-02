@@ -1,7 +1,9 @@
-{ inputs, lib, pkgs, ... }: let
+{ inputs, lib, pkgs, ... }: with lib;
+
+let
   inherit (inputs) themes;
-in {
-  options.theme = lib.mkConst (themes.custom (themes.raw.gruvbox-dark-hard // {
+in options {
+  theme = mkConst (themes.custom (themes.raw.gruvbox-dark-hard // {
     cornerRadius = 8;
     borderWidth  = 2;
 
@@ -15,7 +17,7 @@ in {
     font.sans.package = pkgs.lexend;
 
     font.mono.name    = "JetBrainsMono Nerd Font";
-    font.mono.package = (pkgs.nerdfonts.override { fonts = [ "JetBrainsMono" ]; });
+    font.mono.package = pkgs.nerdfonts.override { fonts = [ "JetBrainsMono" ]; };
 
     icons.name    = "Gruvbox-Plus-Dark";
     icons.package = pkgs.gruvbox-plus-icons;

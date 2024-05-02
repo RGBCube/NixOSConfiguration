@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }: with lib; merge
+{ lib, pkgs, ... }: with lib; imports [
 
 (let
   prometheusPort = 9020;
@@ -123,3 +123,5 @@ in systemConfiguration {
 (systemPackages (with pkgs; [
   postgresql
 ]))
+
+]

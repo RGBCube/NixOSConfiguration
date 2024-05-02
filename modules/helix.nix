@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }: with lib; merge
+{ config, lib, pkgs, ... }: with lib; imports [
 
 (systemConfiguration {
   environment = {
@@ -207,3 +207,5 @@
   # ZIG
   zls
 ]))
+
+]

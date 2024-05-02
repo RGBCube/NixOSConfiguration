@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }: with lib; merge
+{ lib, pkgs, ... }: with lib; imports [
 
 (systemPackages (with pkgs; [
   asciinema
@@ -52,3 +52,5 @@
   hunspellDicts.en_US
   hunspellDicts.en_GB-ize
 ]))
+
+]

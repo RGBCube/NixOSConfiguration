@@ -1,4 +1,4 @@
-{ self, lib, pkgs, ... }: with lib; merge
+{ self, lib, pkgs, ... }: with lib; imports [
 
 (systemConfiguration {
   environment.shellAliases = {
@@ -66,7 +66,7 @@
 
 (let
   gitUrl    = self.cube.services.forgejo.settings.server.ROOT_URL;
-  gitDomain = head (strings.match "https://(.*)/" gitUrl);
+  gitDomain = parseDomain gitUrl;
 
   mailDomain = head self.disk.mailserver.domains;
 in homeConfiguration {
@@ -156,3 +156,5 @@ in homeConfiguration {
   git-absorb
   tig
 ]))
+
+]

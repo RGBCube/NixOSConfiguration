@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }: with lib; merge
+{ config, lib, pkgs, ... }: with lib; imports [
 
 (desktopSystemConfiguration {
   programs.dconf = enabled;
@@ -24,4 +24,4 @@
   };
 })
 
-
+]

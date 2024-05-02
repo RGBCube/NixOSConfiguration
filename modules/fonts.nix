@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }: with lib; merge
+{ config, lib, pkgs, ... }: with lib; imports [
 
 (desktopSystemConfiguration {
   console = {
@@ -21,3 +21,5 @@
 (serverSystemConfiguration {
   fonts.fontconfig = disabled;
 })
+
+]

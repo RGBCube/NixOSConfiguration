@@ -112,7 +112,7 @@
     ghosttyModule,
     ...
   } @ inputs: let
-    lib0  = nixpkgs.lib;
+    lib0 = nixpkgs.lib;
     keys = import ./keys.nix;
 
     collectNixFiles = directory: with lib0; pipe (builtins.readDir directory) [

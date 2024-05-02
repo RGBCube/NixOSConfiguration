@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }: with lib; merge
+{ config, lib, pkgs, ... }: with lib; imports [
 
 (desktopSystemConfiguration {
   nixpkgs.config.allowUnfree = true;
@@ -14,3 +14,5 @@
     withVencord  = true;
   })
 ]))
+
+]

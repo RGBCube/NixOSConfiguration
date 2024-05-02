@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }: with lib; merge
+{ lib, pkgs, ... }: with lib; imports [
 
 (desktopSystemConfiguration {
   programs.thunar = enabled {
@@ -16,3 +16,5 @@
   libgsf
   xfce.tumbler
 ]))
+
+]

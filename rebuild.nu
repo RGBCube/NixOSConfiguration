@@ -26,7 +26,7 @@ def main --wrapped [
     git ls-files | (
       rsync
         --rsh "ssh -q"
-        --delete-missing-args
+        --delete --delete-excluded --delete-missing-args
         --compress
         --files-from -
         ./ ($host + ":Configuration")

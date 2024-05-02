@@ -1,4 +1,4 @@
-{ lib, ... }: with lib; merge
+{ lib, ... }: with lib; imports [
 
 (systemConfiguration {
   environment.shellAliases = {
@@ -10,3 +10,5 @@
 (homeConfiguration {
   programs.ripgrep = enabled;
 })
+
+]

@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }: with lib; merge
+{ lib, pkgs, ... }: with lib; imports [
 
 (desktopSystemPackages (with pkgs; [
   cargo-expand
@@ -16,3 +16,4 @@
   environment.variables.CARGO_NET_GIT_FETCH_WITH_CLI = "true";
 })
 
+]

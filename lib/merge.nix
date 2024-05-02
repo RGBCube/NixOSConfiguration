@@ -1,5 +1,5 @@
 lib: {
-  merge = lib.mkMerge [] // {
+  mergeAttrs = lib.mkMerge [] // {
     __functor = self: next: self // {
       contents = self.contents ++ [ next ];
     };

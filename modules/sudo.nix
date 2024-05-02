@@ -1,4 +1,4 @@
-{ lib, ... }: with lib; merge
+{ lib, ... }: with lib; imports [
 
 (desktopSystemConfiguration {
   security.sudo.wheelNeedsPassword = false;
@@ -66,3 +66,5 @@
     }];
   };
 })
+
+]

@@ -1,4 +1,4 @@
-{ config, lib, ... }: with lib; merge
+{ config, lib, ... }: with lib; imports [
 
 (systemConfiguration {
   system.stateVersion  = "23.05";
@@ -29,3 +29,5 @@
 (homeConfiguration {
   home.stateVersion = "23.05";
 })
+
+]

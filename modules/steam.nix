@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }: with lib; merge
+{ lib, pkgs, ... }: with lib; imports [
 
 (desktopSystemConfiguration {
   # Steam uses 32-bit drivers for some unholy fucking reason.
@@ -10,3 +10,5 @@
 (desktopUserHomePackages (with pkgs; [
   steam
 ]))
+
+]

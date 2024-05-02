@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }: with lib; merge
+{ config, lib, pkgs, ... }: with lib; imports [
 
 (desktopSystemConfiguration {
   hardware.opengl = enabled;
@@ -215,3 +215,5 @@
   xdg-utils
   xwaylandvideobridge
 ]))
+
+]

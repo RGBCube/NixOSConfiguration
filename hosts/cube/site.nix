@@ -1,14 +1,23 @@
-{ config, lib, ... }: with lib;
+{ config, lib, ... }: with lib; imports [
 
-let
-  inherit (config.networking) domain;
+(options {
+  site.path = mkConst "/var/www/site";
 
-  sitePath = "/var/www/site";
+  site.nginxRootConfiguration = mkConst {
+    root = config.site.path;
 
-  notFoundLocationConfig = {
-    extraConfig                  = "error_page 404 /404.html;";
-    locations."/404".extraConfig = "internal;";
+    extraConfig = ''
+      error_page 404 /404.html;
+    '';
+
+    locations."/404".extraConfig = ''
+      internal;
+    '';
   };
+})
+
+(let
+  inherit (config.networking) domain;
 in systemConfiguration {
   services.nginx = enabled {
     appendHttpConfig = ''
@@ -21,9 +30,7 @@ in systemConfiguration {
       }
     '';
 
-    virtualHosts.${domain} = merge config.sslTemplate notFoundLocationConfig {
-      root = sitePath;
-
+    virtualHosts.${domain} = mergeAttrs config.sslTemplate config.siteRootConfig {
       locations."/".tryFiles = "$uri $uri.html $uri/index.html =404";
 
       locations."/assets/".extraConfig = ''
@@ -40,15 +47,15 @@ in systemConfiguration {
       '';
     };
 
-    virtualHosts."www.${domain}" = merge config.sslTemplate {
+    virtualHosts."www.${domain}" = mergeAttrs config.sslTemplate {
       locations."/".extraConfig = "return 301 https://${domain}$request_uri;";
     };
 
-    virtualHosts._ = merge config.sslTemplate notFoundLocationConfig {
-      root = sitePath;
-
+    virtualHosts._ = mergeAttrs config.sslTemplate config.siteRootConfig {
       locations."/".extraConfig        = "return 404;";
       locations."/assets/".extraConfig = "return 301 https://${domain}$request_uri;";
     };
   };
-}
+})
+
+]

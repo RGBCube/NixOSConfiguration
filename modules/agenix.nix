@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }: with lib; merge
+{ lib, pkgs, ... }: with lib; imports [
 
 (systemConfiguration {
   age.identityPaths = [ "/root/.ssh/id" ];
@@ -11,3 +11,5 @@
 (desktopSystemPackages (with pkgs; [
   agenix
 ]))
+
+]

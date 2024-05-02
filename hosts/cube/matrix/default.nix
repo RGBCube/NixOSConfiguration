@@ -3,32 +3,11 @@
 let
   inherit (config.networking) domain;
 
-  sitePath = "/var/www/site";
-
   chatDomain = "chat.${domain}";
   syncDomain = "sync.${domain}";
 
-  wellKnownResponse = data: ''
-    default_type application/json;
-    add_header Access-Control-Allow-Origin *;
-    return 200 '${strings.toJSON data}';
-  '';
-
-  clientConfig."m.homeserver".base_url        = "https://${chatDomain}";
-  clientConfig."org.matrix.msc3575.proxy".url = "https://${syncDomain}";
-
-  serverConfig."m.server" = "${chatDomain}:443";
-
-  wellKnownResponseConfig.locations = {
-    "= /.well-known/matrix/client".extraConfig = wellKnownResponse clientConfig;
-    "= /.well-known/matrix/server".extraConfig = wellKnownResponse serverConfig;
-  };
-
-  notFoundLocationConfig = {
+  notFoundLocationConfig = config.siteRootConfig // {
     locations."/".extraConfig = "return 404;";
-
-    extraConfig                  = "error_page 404 /404.html;";
-    locations."/404".extraConfig = "internal;";
 
     locations."/assets/".extraConfig = "return 301 https://${domain}$request_uri;";
   };
@@ -106,11 +85,7 @@ in serverSystemConfiguration {
     }];
   };
 
-  services.nginx.virtualHosts.${domain} = wellKnownResponseConfig;
-
-  services.nginx.virtualHosts.${chatDomain} = merge config.sslTemplate wellKnownResponseConfig notFoundLocationConfig {
-    root = "${sitePath}";
-
+  services.nginx.virtualHosts.${chatDomain} = mergeAttrs config.sslTemplate config.wellKnownResponseConfig notFoundLocationConfig {
     locations."/_matrix".proxyPass         = "http://[::1]:${toString synapsePort}";
     locations."/_synapse/client".proxyPass = "http://[::1]:${toString synapsePort}";
   };
@@ -118,15 +93,13 @@ in serverSystemConfiguration {
   services.matrix-sliding-sync = enabled {
     environmentFile = config.age.secrets.matrixSyncPassword.path;
     settings        = {
-      SYNCV3_SERVER   = "https://${chatDomain}";
+      SYNCV3_SERVER   = "https://${chatDomain}/";
       SYNCV3_DB       = "postgresql:///matrix-sliding-sync?host=/run/postgresql";
       SYNCV3_BINDADDR = "[::1]:${toString syncPort}";
     };
   };
 
-  services.nginx.virtualHosts.${syncDomain} = merge config.sslTemplate notFoundLocationConfig {
-    root = sitePath;
-
+  services.nginx.virtualHosts.${syncDomain} = mergeAttrs config.sslTemplate config.wellKnownResponseConfig notFoundLocationConfig {
     locations."~ ^/(client/|_matrix/client/unstable/org.matrix.msc3575/sync)"
       .proxyPass = "http://[::1]:${toString synapsePort}";
 

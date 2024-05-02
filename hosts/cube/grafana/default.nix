@@ -70,7 +70,7 @@ in systemConfiguration {
     };
   };
 
-  services.nginx.virtualHosts.${fqdn} = merge config.sslTemplate {
+  services.nginx.virtualHosts.${fqdn} = mergeAttrs config.sslTemplate {
     locations."/" = {
       proxyPass       = "http://[::1]:${toString port}";
       proxyWebsockets = true;

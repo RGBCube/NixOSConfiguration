@@ -1,4 +1,4 @@
-{ lib, ... }: with lib; merge
+{ lib, ... }: with lib; imports [
 
 (systemConfiguration {
   console.keyMap = "trq";
@@ -19,3 +19,5 @@
     "LC_TIME"
   ] (_: "tr_TR.UTF-8");
 })
+
+]

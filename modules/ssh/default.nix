@@ -1,4 +1,4 @@
-{ self, config, lib, pkgs, ... }: with lib; merge
+{ self, config, lib, pkgs, ... }: with lib; imports [
 
 (systemConfiguration {
   secrets.sshConfig = {
@@ -66,3 +66,5 @@ in serverSystemConfiguration {
     };
   };
 })
+
+]

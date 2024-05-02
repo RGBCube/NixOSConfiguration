@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... } @ inputs: with lib; merge
+{ config, lib, pkgs, ... } @ inputs: with lib; imports [
 
 (systemConfiguration {
   users.defaultUserShell = pkgs.nushellFull;
@@ -52,3 +52,5 @@
   fish   # For completions.
   zoxide # For completions and better cd.
 ]))
+
+]

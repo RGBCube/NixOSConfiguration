@@ -1,4 +1,4 @@
-{ inputs, lib, pkgs, ... }: with lib; merge
+{ inputs, lib, pkgs, ... }: with lib; imports [
 
 (systemConfiguration {
   environment.etc."flakes.json".text = strings.toJSON inputs;
@@ -73,3 +73,5 @@
   }
   '';
 })
+
+]

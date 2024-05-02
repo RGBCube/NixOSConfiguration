@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }: with lib; merge
+{ lib, pkgs, ... }: with lib; imports [
 
 (systemConfiguration {
   environment.shellAliases = {
@@ -14,3 +14,5 @@
   virtualenv
   poetry
 ]))
+
+]
